@@ -1,0 +1,37 @@
+name: Scheduled Tasks
+
+on:
+  # Run every hour
+  schedule:
+    - cron: '0 * * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  hourly-task:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run scheduled task
+        run: npm run script:hello
+        env:
+          NODE_ENV: production
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Scheduled task failed"
+          echo "Timestamp: $(date)"
